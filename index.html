@@ -304,6 +304,15 @@
     z-index: 1;
   }
 
+  .hero-photo {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    display: block;
+  }
+
   /* FADE UP ANIMATION */
   .fade-up {
     opacity: 0;
@@ -366,6 +375,44 @@
   .service-card p {
     color: var(--gray);
     font-size: 0.95rem;
+  }
+
+  /* GALERÍA */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .gallery-card {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    aspect-ratio: 4 / 3;
+  }
+
+  .gallery-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .gallery-card:hover img {
+    transform: scale(1.05);
+  }
+
+  .gallery-card figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    background: linear-gradient(to top, rgba(29, 43, 58, 0.75), transparent);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.9rem;
   }
 
   /* CITAS */
@@ -690,7 +737,8 @@
       margin: 0 auto;
     }
 
-    .services-grid {
+    .services-grid,
+    .gallery-grid {
       grid-template-columns: repeat(2, 1fr);
     }
 
@@ -747,7 +795,8 @@
       display: flex;
     }
 
-    .services-grid {
+    .services-grid,
+    .gallery-grid {
       grid-template-columns: 1fr;
     }
 
@@ -808,35 +857,7 @@
     </div>
     <div class="hero-art fade-up">
       <div class="hero-blob"></div>
-      <!-- REEMPLAZAR: imagen hero -->
-      <svg viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="210" cy="340" rx="160" ry="20" fill="#2B7FD4" opacity="0.08"/>
-        <g transform="translate(30,60)">
-          <ellipse cx="90" cy="220" rx="80" ry="55" fill="#FFD166"/>
-          <circle cx="90" cy="140" r="62" fill="#FFD166"/>
-          <ellipse cx="42" cy="95" rx="20" ry="30" fill="#FFD166" transform="rotate(-25 42 95)"/>
-          <ellipse cx="138" cy="95" rx="20" ry="30" fill="#FFD166" transform="rotate(25 138 95)"/>
-          <ellipse cx="42" cy="100" rx="10" ry="16" fill="#F7C15A" transform="rotate(-25 42 100)"/>
-          <ellipse cx="138" cy="100" rx="10" ry="16" fill="#F7C15A" transform="rotate(25 138 100)"/>
-          <circle cx="68" cy="135" r="7" fill="#1D2B3A"/>
-          <circle cx="112" cy="135" r="7" fill="#1D2B3A"/>
-          <ellipse cx="90" cy="158" rx="12" ry="8" fill="#1D2B3A"/>
-          <path d="M78 168 Q90 178 102 168" stroke="#1D2B3A" stroke-width="3" fill="none" stroke-linecap="round"/>
-        </g>
-        <g transform="translate(220,140)">
-          <ellipse cx="80" cy="150" rx="75" ry="48" fill="#2B7FD4"/>
-          <circle cx="80" cy="80" r="55" fill="#2B7FD4"/>
-          <path d="M35 45 L20 5 L60 35 Z" fill="#2B7FD4"/>
-          <path d="M125 45 L140 5 L100 35 Z" fill="#2B7FD4"/>
-          <ellipse cx="55" cy="90" rx="18" ry="22" fill="#fff"/>
-          <ellipse cx="105" cy="90" rx="18" ry="22" fill="#fff"/>
-          <circle cx="58" cy="90" r="6" fill="#1D2B3A"/>
-          <circle cx="102" cy="90" r="6" fill="#1D2B3A"/>
-          <ellipse cx="80" cy="105" rx="10" ry="7" fill="#F2B705"/>
-          <path d="M65 115 Q80 128 95 115" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M20 130 Q0 110 10 90" stroke="#2B7FD4" stroke-width="10" fill="none" stroke-linecap="round"/>
-        </g>
-      </svg>
+      <img class="hero-photo" src="assets/images/hero-dog-cat.jpg" alt="Perro y gato en la clínica Yukly Pets">
     </div>
   </div>
 </header>
@@ -908,6 +929,30 @@
         <h3>Tienda de productos</h3>
         <p>Alimento, accesorios y productos de calidad para el bienestar diario.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="gallery" id="instalaciones">
+  <div class="container">
+    <div class="fade-up">
+      <span class="eyebrow">Conócenos</span>
+      <h2 class="section-title">Así cuidamos a tu mascota</h2>
+      <p class="section-sub">Instalaciones cómodas y un equipo que trata a cada paciente como de la familia.</p>
+    </div>
+    <div class="gallery-grid">
+      <figure class="gallery-card fade-up">
+        <img src="assets/images/vet-exam.jpg" alt="Veterinaria revisando a un perro en consulta">
+        <figcaption>Consultas con calma y calidez</figcaption>
+      </figure>
+      <figure class="gallery-card fade-up">
+        <img src="assets/images/grooming.jpg" alt="Perro feliz después de su sesión de grooming">
+        <figcaption>Grooming que deja a tu mascota feliz</figcaption>
+      </figure>
+      <figure class="gallery-card fade-up">
+        <img src="assets/images/clinic-interior.jpg" alt="Sala de espera de la clínica Yukly Pets">
+        <figcaption>Un espacio cómodo para esperar</figcaption>
+      </figure>
     </div>
   </div>
 </section>
