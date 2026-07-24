@@ -82,6 +82,7 @@
   }
 
   var TABS = ["resumen", "dueno", "servicios", "resenas", "trabajadores", "asistencia"];
+  var currentLoadToken = 0;
 
   function showTab(tab) {
     TABS.forEach(function (name) {
@@ -92,12 +93,17 @@
     });
     qs("sidebar").classList.remove("open");
 
-    if (tab === "resumen") loadResumen();
-    if (tab === "dueno") loadBusinessSettings();
-    if (tab === "servicios") loadServices();
-    if (tab === "resenas") loadReviews();
-    if (tab === "trabajadores") loadEmployees();
-    if (tab === "asistencia") loadAttendance();
+    var token = ++currentLoadToken;
+    if (tab === "resumen") loadResumen(token);
+    if (tab === "dueno") loadBusinessSettings(token);
+    if (tab === "servicios") loadServices(token);
+    if (tab === "resenas") loadReviews(token);
+    if (tab === "trabajadores") loadEmployees(token);
+    if (tab === "asistencia") loadAttendance(token);
+  }
+
+  function isStaleLoad(token) {
+    return token !== currentLoadToken;
   }
 
   document.querySelectorAll(".sidebar-nav button").forEach(function (btn) {
@@ -134,12 +140,18 @@
     await supabase.auth.signOut();
   });
 
+  var appShellVisible = false;
+
   supabase.auth.onAuthStateChange(function (event, session) {
     if (session) {
       qs("loginScreen").classList.add("hidden");
       qs("appShell").classList.remove("hidden");
-      showTab("resumen");
+      if (!appShellVisible) {
+        appShellVisible = true;
+        showTab("resumen");
+      }
     } else {
+      appShellVisible = false;
       qs("appShell").classList.add("hidden");
       qs("loginScreen").classList.remove("hidden");
       qs("loginForm").reset();
@@ -148,11 +160,9 @@
 
   /* ---------- RESUMEN ---------- */
 
-  async function loadResumen() {
+  async function loadResumen(token) {
     var statGrid = qs("statGrid");
     var recentWrap = qs("recentAppointments");
-    statGrid.innerHTML = "";
-    recentWrap.innerHTML = "";
 
     var [servicesRes, reviewsRes, employeesRes, appointmentsRes] = await Promise.all([
       supabase.from("services").select("id", { count: "exact", head: true }).eq("active", true),
@@ -160,6 +170,11 @@
       supabase.from("employees").select("id", { count: "exact", head: true }).eq("active", true),
       supabase.from("appointments").select("*").order("created_at", { ascending: false }).limit(6),
     ]);
+
+    if (isStaleLoad(token)) return;
+
+    statGrid.innerHTML = "";
+    recentWrap.innerHTML = "";
 
     var stats = [
       { label: "Servicios activos", value: servicesRes.count || 0 },
@@ -204,8 +219,9 @@
 
   /* ---------- DUEÑO ---------- */
 
-  async function loadBusinessSettings() {
+  async function loadBusinessSettings(token) {
     var result = await supabase.from("business_settings").select("*").eq("id", 1).maybeSingle();
+    if (isStaleLoad(token)) return;
     if (result.error || !result.data) return;
     var data = result.data;
     qs("bName").value = data.business_name || "";
@@ -365,9 +381,10 @@
     loadServices();
   });
 
-  async function loadServices() {
+  async function loadServices(token) {
     var wrap = qs("servicesTableWrap");
     var result = await supabase.from("services").select("*").order("sort_order", { ascending: true });
+    if (isStaleLoad(token)) return;
 
     if (result.error) {
       wrap.innerHTML = '<div class="empty-state">No se pudieron cargar los servicios.</div>';
@@ -442,9 +459,10 @@
 
   /* ---------- RESEÑAS ---------- */
 
-  async function loadReviews() {
+  async function loadReviews(token) {
     var wrap = qs("reviewsTableWrap");
     var result = await supabase.from("reviews").select("*").order("created_at", { ascending: false });
+    if (isStaleLoad(token)) return;
 
     if (result.error) {
       wrap.innerHTML = '<div class="empty-state">No se pudieron cargar las reseñas.</div>';
@@ -604,9 +622,10 @@
     }
   }
 
-  async function loadEmployees() {
+  async function loadEmployees(token) {
     var wrap = qs("employeesTableWrap");
     var result = await supabase.from("employees").select("*").order("full_name", { ascending: true });
+    if (isStaleLoad(token)) return;
 
     if (result.error) {
       wrap.innerHTML = '<div class="empty-state">No se pudieron cargar los trabajadores.</div>';
@@ -711,13 +730,14 @@
 
   /* ---------- ASISTENCIA ---------- */
 
-  async function loadAttendance() {
+  async function loadAttendance(token) {
     var wrap = qs("attendanceTableWrap");
     var result = await supabase
       .from("attendance_logs")
       .select("id, type, occurred_at, notified, source, employees(full_name)")
       .order("occurred_at", { ascending: false })
       .limit(100);
+    if (isStaleLoad(token)) return;
 
     if (result.error) {
       wrap.innerHTML = '<div class="empty-state">No se pudo cargar la asistencia.</div>';
