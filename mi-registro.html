@@ -188,7 +188,7 @@
       });
     }
 
-    function renderMessage(state, title, detail, timeLabel) {
+    function renderMessage(state, title, detail, timeLabel, showRetry) {
       var icon = state
         ? '<div class="icon-circle ' +
           state +
@@ -201,11 +201,15 @@
       content.innerHTML =
         icon +
         "<h1></h1><p class=\"detail\"></p>" +
-        (timeLabel ? '<div class="time"></div>' : "");
+        (timeLabel ? '<div class="time"></div>' : "") +
+        (showRetry ? '<button class="checkin-btn" id="retryBtn" style="margin-top:20px;">Ver mi estado</button>' : "");
       content.querySelector("h1").textContent = title;
       content.querySelector(".detail").textContent = detail;
       if (timeLabel) {
         content.querySelector(".time").textContent = timeLabel;
+      }
+      if (showRetry) {
+        document.getElementById("retryBtn").addEventListener("click", loadStatus);
       }
     }
 
@@ -221,6 +225,17 @@
       document.getElementById("checkinBtn").addEventListener("click", function () {
         handleCheckin(nextType);
       });
+    }
+
+    function loadStatus() {
+      content.innerHTML = '<div class="spinner"></div><p class="detail">Cargando tu información...</p>';
+      callFunction("worker-status", { token: token })
+        .then(function (body) {
+          renderButton(body.employeeName, body.nextType);
+        })
+        .catch(function (error) {
+          renderMessage("error", "No se pudo cargar tu información", error.message, null, true);
+        });
     }
 
     function handleCheckin(nextType) {
@@ -251,14 +266,20 @@
                 month: "short",
               });
               var title = body.type === "entrada" ? "Entrada registrada" : "Salida registrada";
-              renderMessage("success", title, "¡Listo, " + body.employeeName + "! Tu registro se guardó correctamente.", timeLabel);
+              renderMessage(
+                "success",
+                title,
+                "¡Listo, " + body.employeeName + "! Tu registro se guardó correctamente.",
+                timeLabel,
+                true,
+              );
             })
             .catch(function (error) {
               var detail = error.message;
               if (typeof error.distanceMeters === "number") {
                 detail += " Estás a " + error.distanceMeters + " m del negocio.";
               }
-              renderMessage("error", "No se pudo registrar", detail);
+              renderMessage("error", "No se pudo registrar", detail, null, true);
             });
         },
         function () {
@@ -279,13 +300,7 @@
       return;
     }
 
-    callFunction("worker-status", { token: token })
-      .then(function (body) {
-        renderButton(body.employeeName, body.nextType);
-      })
-      .catch(function (error) {
-        renderMessage("error", "No se pudo cargar tu información", error.message);
-      });
+    loadStatus();
   })();
 </script>
 </body>
