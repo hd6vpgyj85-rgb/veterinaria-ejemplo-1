@@ -629,9 +629,21 @@
     box-shadow: 0 6px 18px rgba(43, 127, 212, 0.08);
   }
 
+  .hidden {
+    display: none !important;
+  }
+
+  .review-photo-preview {
+    width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+  }
+
   .review-photo {
     width: 100%;
-    max-height: 220px;
+    max-height: 320px;
     object-fit: cover;
     border-radius: var(--radius-sm);
     margin-bottom: 16px;
@@ -1129,6 +1141,7 @@
           <div class="form-row">
             <label for="reviewPhoto">Foto (opcional)</label>
             <input type="file" id="reviewPhoto" name="reviewPhoto" accept="image/*">
+            <img class="review-photo-preview hidden" id="reviewPhotoPreview" alt="Vista previa de la foto">
           </div>
           <button type="submit" class="btn btn-primary btn-block">Enviar reseña</button>
           <p class="form-note" id="reviewNote">Tu reseña se publicará después de ser revisada por el equipo.</p>
@@ -1321,7 +1334,7 @@
           slides[current].classList.remove('active');
           current = (current + 1) % slides.length;
           slides[current].classList.add('active');
-        }, 4000);
+        }, 8000);
       }
     }
 
@@ -1338,6 +1351,23 @@
           console.error('No se pudieron cargar las reseñas:', error);
         });
     }
+
+    var reviewPhotoInput = document.getElementById('reviewPhoto');
+    var reviewPhotoPreview = document.getElementById('reviewPhotoPreview');
+    reviewPhotoInput.addEventListener('change', function () {
+      var file = reviewPhotoInput.files[0];
+      if (!file) {
+        reviewPhotoPreview.classList.add('hidden');
+        reviewPhotoPreview.src = '';
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        reviewPhotoPreview.src = event.target.result;
+        reviewPhotoPreview.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
 
     var reviewForm = document.getElementById('reviewForm');
     reviewForm.addEventListener('submit', function (event) {
@@ -1362,6 +1392,8 @@
       window.YuklyData.submitReview({ name: name, rating: rating, comment: comment }, photoFile)
         .then(function () {
           reviewForm.reset();
+          reviewPhotoPreview.classList.add('hidden');
+          reviewPhotoPreview.src = '';
           reviewNote.textContent = '¡Gracias por tu reseña! Se publicará en cuanto sea revisada.';
         })
         .catch(function (error) {
