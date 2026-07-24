@@ -58,12 +58,22 @@
       return result.data;
     },
 
-    async submitReview(review) {
+    async submitReview(review, photoFile) {
       if (!client) throw new Error("Supabase no está configurado todavía.");
+
+      var photoUrl = null;
+      if (photoFile) {
+        var path = Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + photoFile.name;
+        var uploadResult = await client.storage.from("review-photos").upload(path, photoFile);
+        if (uploadResult.error) throw uploadResult.error;
+        photoUrl = client.storage.from("review-photos").getPublicUrl(path).data.publicUrl;
+      }
+
       var result = await client.from("reviews").insert({
         name: review.name,
         rating: review.rating,
         comment: review.comment,
+        photo_url: photoUrl,
         approved: false,
       });
       if (result.error) throw result.error;

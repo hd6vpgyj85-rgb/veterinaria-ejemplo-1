@@ -405,19 +405,28 @@
 
     var table = document.createElement("table");
     table.innerHTML =
-      "<thead><tr><th>Nombre</th><th>Calificación</th><th>Comentario</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody>";
+      "<thead><tr><th>Foto</th><th>Nombre</th><th>Calificación</th><th>Comentario</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody>";
     var tbody = table.querySelector("tbody");
 
     reviews.forEach(function (review) {
       var tr = document.createElement("tr");
-      tr.innerHTML = "<td></td><td></td><td></td><td></td><td></td>";
+      tr.innerHTML = "<td></td><td></td><td></td><td></td><td></td><td></td>";
       var cells = tr.querySelectorAll("td");
-      cells[0].textContent = review.name;
-      cells[1].innerHTML = '<span class="stars-static"></span>';
-      cells[1].querySelector(".stars-static").textContent =
+      if (review.photo_url) {
+        var thumb = document.createElement("img");
+        thumb.src = review.photo_url;
+        thumb.alt = "Foto de " + review.name;
+        thumb.className = "review-thumb";
+        cells[0].appendChild(thumb);
+      } else {
+        cells[0].textContent = "—";
+      }
+      cells[1].textContent = review.name;
+      cells[2].innerHTML = '<span class="stars-static"></span>';
+      cells[2].querySelector(".stars-static").textContent =
         "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
-      cells[2].textContent = review.comment;
-      cells[3].innerHTML =
+      cells[3].textContent = review.comment;
+      cells[4].innerHTML =
         '<span class="badge ' +
         (review.approved ? "badge-green" : "badge-yellow") +
         '">' +
@@ -460,7 +469,7 @@
 
       actions.appendChild(toggleBtn);
       actions.appendChild(deleteBtn);
-      cells[4].appendChild(actions);
+      cells[5].appendChild(actions);
 
       tbody.appendChild(tr);
     });
