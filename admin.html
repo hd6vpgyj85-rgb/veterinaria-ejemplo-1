@@ -735,6 +735,35 @@
         </form>
       </div>
       <div class="panel">
+        <h2>Ubicación para registro de asistencia</h2>
+        <p style="color:var(--gray); font-size:0.9rem; margin-bottom:20px;">
+          Los trabajadores solo podrán marcar su entrada/salida desde su "enlace de registro personal"
+          cuando su celular esté dentro de este radio. Para configurarla, párate físicamente en la
+          clínica y presiona el botón de abajo.
+        </p>
+        <div id="locationFormMsg"></div>
+        <form id="locationForm">
+          <button type="button" class="btn btn-secondary" id="useCurrentLocationBtn" style="margin-bottom:16px;">
+            Usar mi ubicación actual
+          </button>
+          <div class="field-row">
+            <div class="field">
+              <label for="bLatitude">Latitud</label>
+              <input type="number" id="bLatitude" step="any" placeholder="Ej. 31.6904">
+            </div>
+            <div class="field">
+              <label for="bLongitude">Longitud</label>
+              <input type="number" id="bLongitude" step="any" placeholder="Ej. -106.4245">
+            </div>
+          </div>
+          <div class="field">
+            <label for="bRadius">Radio permitido (metros)</label>
+            <input type="number" id="bRadius" min="20" step="10" value="150">
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar ubicación</button>
+        </form>
+      </div>
+      <div class="panel">
         <h2>Cambiar contraseña de acceso</h2>
         <div id="passwordFormMsg"></div>
         <form id="passwordForm">

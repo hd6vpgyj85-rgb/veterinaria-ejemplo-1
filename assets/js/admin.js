@@ -215,6 +215,9 @@
     qs("bHoursWeekday").value = data.hours_weekday || "";
     qs("bHoursSaturday").value = data.hours_saturday || "";
     qs("bHoursSunday").value = data.hours_sunday || "";
+    qs("bLatitude").value = data.checkin_latitude ?? "";
+    qs("bLongitude").value = data.checkin_longitude ?? "";
+    qs("bRadius").value = data.checkin_radius_meters ?? 150;
   }
 
   qs("businessForm").addEventListener("submit", async function (event) {
@@ -238,6 +241,57 @@
     }
     setFormMessage("businessFormMsg", "Datos del negocio actualizados.", false);
     toast("Información del negocio guardada", "success");
+  });
+
+  qs("useCurrentLocationBtn").addEventListener("click", function () {
+    setFormMessage("locationFormMsg", "", false);
+
+    if (!navigator.geolocation) {
+      setFormMessage("locationFormMsg", "Tu navegador no permite obtener tu ubicación.", true);
+      return;
+    }
+
+    var btn = qs("useCurrentLocationBtn");
+    btn.disabled = true;
+    btn.textContent = "Obteniendo ubicación...";
+
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        qs("bLatitude").value = position.coords.latitude;
+        qs("bLongitude").value = position.coords.longitude;
+        btn.disabled = false;
+        btn.textContent = "Usar mi ubicación actual";
+        setFormMessage("locationFormMsg", "Ubicación capturada. No olvides dar clic en \"Guardar ubicación\".", false);
+      },
+      function () {
+        btn.disabled = false;
+        btn.textContent = "Usar mi ubicación actual";
+        setFormMessage("locationFormMsg", "No se pudo obtener tu ubicación. Revisa los permisos del navegador.", true);
+      },
+      { enableHighAccuracy: true, timeout: 15000 },
+    );
+  });
+
+  qs("locationForm").addEventListener("submit", async function (event) {
+    event.preventDefault();
+    setFormMessage("locationFormMsg", "", false);
+
+    var latitude = qs("bLatitude").value;
+    var longitude = qs("bLongitude").value;
+
+    var payload = {
+      checkin_latitude: latitude === "" ? null : parseFloat(latitude),
+      checkin_longitude: longitude === "" ? null : parseFloat(longitude),
+      checkin_radius_meters: parseInt(qs("bRadius").value, 10) || 150,
+    };
+
+    var result = await supabase.from("business_settings").update(payload).eq("id", 1);
+    if (result.error) {
+      setFormMessage("locationFormMsg", "No se pudo guardar: " + result.error.message, true);
+      return;
+    }
+    setFormMessage("locationFormMsg", "Ubicación guardada.", false);
+    toast("Ubicación de registro guardada", "success");
   });
 
   qs("passwordForm").addEventListener("submit", async function (event) {
@@ -532,6 +586,12 @@
     return url.toString();
   }
 
+  function personalRegisterUrl(token) {
+    var url = new URL("mi-registro.html", window.location.href);
+    url.searchParams.set("token", token);
+    return url.toString();
+  }
+
   function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {
@@ -561,12 +621,12 @@
 
     var table = document.createElement("table");
     table.innerHTML =
-      "<thead><tr><th>Nombre</th><th>Puesto</th><th>Estado</th><th>Enlaces NFC</th><th>Acciones</th></tr></thead><tbody></tbody>";
+      "<thead><tr><th>Nombre</th><th>Puesto</th><th>Estado</th><th>Enlaces NFC</th><th>Registro personal (GPS)</th><th>Acciones</th></tr></thead><tbody></tbody>";
     var tbody = table.querySelector("tbody");
 
     employees.forEach(function (employee) {
       var tr = document.createElement("tr");
-      tr.innerHTML = "<td></td><td></td><td></td><td></td><td></td>";
+      tr.innerHTML = "<td></td><td></td><td></td><td></td><td></td><td></td>";
       var cells = tr.querySelectorAll("td");
       cells[0].textContent = employee.full_name;
       cells[1].textContent = employee.role;
@@ -595,6 +655,20 @@
         linksWrap.appendChild(row);
       });
       cells[3].appendChild(linksWrap);
+
+      var personalUrl = personalRegisterUrl(employee.checkin_token);
+      var personalRow = document.createElement("div");
+      personalRow.className = "nfc-link";
+      personalRow.innerHTML = "<code></code>";
+      personalRow.querySelector("code").textContent = personalUrl;
+      var personalCopyBtn = document.createElement("button");
+      personalCopyBtn.className = "btn btn-secondary btn-sm";
+      personalCopyBtn.textContent = "Copiar";
+      personalCopyBtn.addEventListener("click", function () {
+        copyToClipboard(personalUrl);
+      });
+      personalRow.appendChild(personalCopyBtn);
+      cells[4].appendChild(personalRow);
 
       var actions = document.createElement("div");
       actions.className = "row-actions";
@@ -626,7 +700,7 @@
 
       actions.appendChild(editBtn);
       actions.appendChild(deleteBtn);
-      cells[4].appendChild(actions);
+      cells[5].appendChild(actions);
 
       tbody.appendChild(tr);
     });
@@ -641,7 +715,7 @@
     var wrap = qs("attendanceTableWrap");
     var result = await supabase
       .from("attendance_logs")
-      .select("id, type, occurred_at, notified, employees(full_name)")
+      .select("id, type, occurred_at, notified, source, employees(full_name)")
       .order("occurred_at", { ascending: false })
       .limit(100);
 
@@ -659,12 +733,12 @@
 
     var table = document.createElement("table");
     table.innerHTML =
-      "<thead><tr><th>Trabajador</th><th>Tipo</th><th>Fecha y hora</th><th>Notificado</th></tr></thead><tbody></tbody>";
+      "<thead><tr><th>Trabajador</th><th>Tipo</th><th>Origen</th><th>Fecha y hora</th><th>Notificado</th></tr></thead><tbody></tbody>";
     var tbody = table.querySelector("tbody");
 
     logs.forEach(function (log) {
       var tr = document.createElement("tr");
-      tr.innerHTML = "<td></td><td></td><td></td><td></td>";
+      tr.innerHTML = "<td></td><td></td><td></td><td></td><td></td>";
       var cells = tr.querySelectorAll("td");
       cells[0].textContent = log.employees ? log.employees.full_name : "Trabajador eliminado";
       cells[1].innerHTML =
@@ -673,8 +747,9 @@
         '">' +
         (log.type === "entrada" ? "Entrada" : "Salida") +
         "</span>";
-      cells[2].textContent = new Date(log.occurred_at).toLocaleString("es-MX");
-      cells[3].textContent = log.notified ? "Sí" : "No";
+      cells[2].textContent = log.source === "geolocation" ? "GPS" : "NFC";
+      cells[3].textContent = new Date(log.occurred_at).toLocaleString("es-MX");
+      cells[4].textContent = log.notified ? "Sí" : "No";
       tbody.appendChild(tr);
     });
 
