@@ -103,10 +103,6 @@ probar el flujo.
 
 ## 8. Imágenes y logo
 
-Los siguientes archivos usan íconos SVG como marcador de posición:
-
-- El logo del pato (`<!-- reemplazar con logo real -->` en `index.html` y `admin.html`).
-- Las fotos del hero y de la sección de ubicación (`<!-- REEMPLAZAR: imagen hero -->`).
-
-Cuando tengas las imágenes finales, colócalas en `assets/images/` y reemplaza los bloques SVG
-correspondientes por etiquetas `<img>`.
+El logo real y las fotos del hero / instalaciones ya están integrados en `assets/images/`. Si en el
+futuro quieres cambiarlas, solo reemplaza el archivo correspondiente (mismo nombre) o actualiza la
+ruta en el `<img>` de `index.html` / `admin.html`.
