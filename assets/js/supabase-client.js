@@ -88,6 +88,7 @@
         pet_name: appointment.petName,
         service: appointment.service,
         preferred_date: appointment.date || null,
+        preferred_time: appointment.time || null,
       });
       if (result.error) throw result.error;
 
@@ -98,6 +99,7 @@
           petName: appointment.petName,
           service: appointment.service,
           preferredDate: appointment.date,
+          preferredTime: appointment.time,
         });
       } catch (emailError) {
         console.error("La cita se guardó, pero el correo no pudo enviarse:", emailError);

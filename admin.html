@@ -432,6 +432,40 @@
     display: block;
   }
 
+  .trash-btn {
+    position: relative;
+    background: var(--white);
+    color: var(--blue-dark);
+    box-shadow: 0 4px 12px rgba(43, 127, 212, 0.12);
+  }
+
+  .trash-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .trash-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--red);
+    color: var(--white);
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+  }
+
+  .trash-modal-card {
+    max-width: 640px;
+  }
+
   .nfc-link {
     display: flex;
     align-items: center;
@@ -899,8 +933,13 @@
       <div class="main-header">
         <div>
           <h1>Asistencia</h1>
-          <p>Registro de entradas y salidas capturado por los NFC de cada trabajador.</p>
+          <p>Registro de entradas y salidas capturado por los NFC y GPS de cada trabajador.</p>
         </div>
+        <button class="btn btn-secondary trash-btn" id="openTrashBtn" title="Ver asistencias eliminadas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg>
+          Papelera
+          <span class="trash-badge hidden" id="trashBadge">0</span>
+        </button>
       </div>
       <div class="panel">
         <div id="attendanceTableWrap"></div>

@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { ownerName, phone, petName, service, preferredDate } = await req.json();
+    const { ownerName, phone, petName, service, preferredDate, preferredTime } = await req.json();
 
     if (!ownerName || !phone || !petName || !service) {
       return new Response(JSON.stringify({ error: "Faltan datos de la cita." }), {
@@ -23,6 +23,7 @@ Deno.serve(async (req) => {
       <p><strong>Mascota:</strong> ${petName}</p>
       <p><strong>Servicio:</strong> ${service}</p>
       <p><strong>Fecha preferida:</strong> ${preferredDate ?? "No especificada"}</p>
+      <p><strong>Hora preferida:</strong> ${preferredTime ?? "No especificada"}</p>
     `;
 
     await sendOwnerEmail(`Nueva cita: ${petName} (${service})`, html);

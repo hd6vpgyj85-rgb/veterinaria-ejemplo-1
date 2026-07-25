@@ -16,10 +16,12 @@ Todo el frontend es HTML/CSS/JS estático (listo para Netlify), pero ahora depen
 
 1. Crea una cuenta gratuita en [supabase.com](https://supabase.com) y un nuevo proyecto.
 2. Ve a **SQL Editor** y ejecuta, en orden, cada migración dentro de `supabase/migrations/` (una
-   consulta nueva por archivo): `0001_init.sql`, `0002_review_photos.sql` y
-   `0003_geofenced_checkin.sql`. Esto crea las tablas (`services`, `reviews`, `employees`,
-   `attendance_logs`, `appointments`, `business_settings`) con sus reglas de seguridad (RLS), el
-   bucket de fotos de reseñas, los campos de ubicación del negocio, y los 6 servicios iniciales.
+   consulta nueva por archivo): `0001_init.sql`, `0002_review_photos.sql`,
+   `0003_geofenced_checkin.sql` y `0004_appointment_time_and_attendance_trash.sql`. Esto crea las
+   tablas (`services`, `reviews`, `employees`, `attendance_logs`, `appointments`,
+   `business_settings`) con sus reglas de seguridad (RLS), el bucket de fotos de reseñas, los campos
+   de ubicación del negocio, la hora de las citas, la papelera de asistencia, y los 6 servicios
+   iniciales.
 3. Ve a **Project Settings → API** y copia:
    - `Project URL`
    - `anon public key`
@@ -87,7 +89,8 @@ Con esto:
 
 Entra a `https://tu-sitio.netlify.app/admin.html` con el correo y contraseña creados en el paso 2.
 
-- **Resumen**: estadísticas rápidas y últimas citas.
+- **Resumen**: estadísticas rápidas y últimas citas (con fecha y hora). Las citas vencidas se
+  eliminan automáticamente cada vez que abres esta pestaña.
 - **Dueño**: nombre del negocio, correo de notificaciones, WhatsApp, dirección, horarios, ubicación
   para registro de asistencia (con botón "Usar mi ubicación actual") y cambio de contraseña.
 - **Servicios**: agregar, editar, ocultar o eliminar los servicios que se muestran en el sitio.
@@ -95,7 +98,10 @@ Entra a `https://tu-sitio.netlify.app/admin.html` con el correo y contraseña cr
 - **Trabajadores**: agregar, editar o eliminar empleados. Cada trabajador tiene dos enlaces NFC
   (entrada / salida) y un enlace de "Registro personal (GPS)", cada uno con botón "Copiar".
 - **Asistencia**: historial de entradas y salidas, con la columna "Origen" indicando si se registró
-  por NFC o por GPS.
+  por NFC o por GPS. Puedes eliminar un registro (pide confirmación), pero no se borra de verdad:
+  queda guardado en la **Papelera** (ícono de bote de basura en la esquina superior derecha de esta
+  pestaña), donde puedes verlo y restaurarlo cuando quieras — así ningún registro de un trabajador
+  desaparece sin dejar rastro.
 
 ## 7. Configurar la ubicación para el registro por GPS
 

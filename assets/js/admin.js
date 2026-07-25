@@ -160,9 +160,33 @@
 
   /* ---------- RESUMEN ---------- */
 
+  async function cleanupExpiredAppointments() {
+    var result = await supabase.from("appointments").select("id, preferred_date, preferred_time");
+    if (result.error || !result.data) return;
+
+    var now = new Date();
+    var expiredIds = result.data
+      .filter(function (appt) {
+        if (!appt.preferred_date) return false;
+        var timePart = appt.preferred_time || "23:59:59";
+        var dt = new Date(appt.preferred_date + "T" + timePart);
+        return dt < now;
+      })
+      .map(function (appt) {
+        return appt.id;
+      });
+
+    if (expiredIds.length) {
+      await supabase.from("appointments").delete().in("id", expiredIds);
+    }
+  }
+
   async function loadResumen(token) {
     var statGrid = qs("statGrid");
     var recentWrap = qs("recentAppointments");
+
+    await cleanupExpiredAppointments();
+    if (isStaleLoad(token)) return;
 
     var [servicesRes, reviewsRes, employeesRes, appointmentsRes] = await Promise.all([
       supabase.from("services").select("id", { count: "exact", head: true }).eq("active", true),
@@ -200,18 +224,19 @@
 
     var table = document.createElement("table");
     table.innerHTML =
-      "<thead><tr><th>Nombre</th><th>Mascota</th><th>Servicio</th><th>Fecha</th><th>Teléfono</th></tr></thead><tbody></tbody>";
+      "<thead><tr><th>Nombre</th><th>Mascota</th><th>Servicio</th><th>Fecha</th><th>Hora</th><th>Teléfono</th></tr></thead><tbody></tbody>";
     var tbody = table.querySelector("tbody");
     appointments.forEach(function (appt) {
       var tr = document.createElement("tr");
       tr.innerHTML =
-        "<td></td><td></td><td></td><td></td><td></td>";
+        "<td></td><td></td><td></td><td></td><td></td><td></td>";
       var cells = tr.querySelectorAll("td");
       cells[0].textContent = appt.owner_name;
       cells[1].textContent = appt.pet_name;
       cells[2].textContent = appt.service;
       cells[3].textContent = appt.preferred_date || "—";
-      cells[4].textContent = appt.phone;
+      cells[4].textContent = appt.preferred_time ? appt.preferred_time.slice(0, 5) : "—";
+      cells[5].textContent = appt.phone;
       tbody.appendChild(tr);
     });
     recentWrap.appendChild(table);
@@ -378,7 +403,7 @@
 
     qs("serviceFormWrap").classList.add("hidden");
     toast(id ? "Servicio actualizado" : "Servicio agregado", "success");
-    loadServices();
+    loadServices(currentLoadToken);
   });
 
   async function loadServices(token) {
@@ -443,7 +468,7 @@
           return;
         }
         toast("Servicio eliminado", "success");
-        loadServices();
+        loadServices(currentLoadToken);
       });
 
       actions.appendChild(editBtn);
@@ -521,7 +546,7 @@
           return;
         }
         toast(review.approved ? "Reseña oculta" : "Reseña publicada", "success");
-        loadReviews();
+        loadReviews(currentLoadToken);
       });
 
       var deleteBtn = document.createElement("button");
@@ -536,7 +561,7 @@
           return;
         }
         toast("Reseña eliminada", "success");
-        loadReviews();
+        loadReviews(currentLoadToken);
       });
 
       actions.appendChild(toggleBtn);
@@ -594,7 +619,7 @@
 
     qs("employeeFormWrap").classList.add("hidden");
     toast(id ? "Trabajador actualizado" : "Trabajador agregado", "success");
-    loadEmployees();
+    loadEmployees(currentLoadToken);
   });
 
   function checkinUrl(token, type) {
@@ -714,7 +739,7 @@
           return;
         }
         toast("Trabajador eliminado", "success");
-        loadEmployees();
+        loadEmployees(currentLoadToken);
       });
 
       actions.appendChild(editBtn);
@@ -735,9 +760,12 @@
     var result = await supabase
       .from("attendance_logs")
       .select("id, type, occurred_at, notified, source, employees(full_name)")
+      .is("deleted_at", null)
       .order("occurred_at", { ascending: false })
       .limit(100);
     if (isStaleLoad(token)) return;
+
+    updateTrashBadge();
 
     if (result.error) {
       wrap.innerHTML = '<div class="empty-state">No se pudo cargar la asistencia.</div>';
@@ -753,7 +781,115 @@
 
     var table = document.createElement("table");
     table.innerHTML =
-      "<thead><tr><th>Trabajador</th><th>Tipo</th><th>Origen</th><th>Fecha y hora</th><th>Notificado</th></tr></thead><tbody></tbody>";
+      "<thead><tr><th>Trabajador</th><th>Tipo</th><th>Origen</th><th>Fecha y hora</th><th>Notificado</th><th>Acciones</th></tr></thead><tbody></tbody>";
+    var tbody = table.querySelector("tbody");
+
+    logs.forEach(function (log) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td></td><td></td><td></td><td></td><td></td><td></td>";
+      var cells = tr.querySelectorAll("td");
+      var employeeName = log.employees ? log.employees.full_name : "Trabajador eliminado";
+      cells[0].textContent = employeeName;
+      cells[1].innerHTML =
+        '<span class="badge ' +
+        (log.type === "entrada" ? "badge-green" : "badge-gray") +
+        '">' +
+        (log.type === "entrada" ? "Entrada" : "Salida") +
+        "</span>";
+      cells[2].textContent = log.source === "geolocation" ? "GPS" : "NFC";
+      cells[3].textContent = new Date(log.occurred_at).toLocaleString("es-MX");
+      cells[4].textContent = log.notified ? "Sí" : "No";
+
+      var deleteBtn = document.createElement("button");
+      deleteBtn.className = "btn btn-danger btn-sm";
+      deleteBtn.textContent = "Eliminar";
+      deleteBtn.addEventListener("click", async function () {
+        var confirmed = await confirmModal(
+          "Eliminar registro de asistencia",
+          "Se eliminará el registro de " +
+            employeeName +
+            " (" +
+            (log.type === "entrada" ? "entrada" : "salida") +
+            ") del " +
+            new Date(log.occurred_at).toLocaleString("es-MX") +
+            '. Podrás verlo y restaurarlo después en la papelera. ¿Continuar?',
+        );
+        if (!confirmed) return;
+        var updateResult = await supabase
+          .from("attendance_logs")
+          .update({ deleted_at: new Date().toISOString() })
+          .eq("id", log.id);
+        if (updateResult.error) {
+          toast("No se pudo eliminar el registro", "error");
+          return;
+        }
+        toast("Registro movido a la papelera", "success");
+        loadAttendance(currentLoadToken);
+      });
+      cells[5].appendChild(deleteBtn);
+
+      tbody.appendChild(tr);
+    });
+
+    wrap.innerHTML = "";
+    wrap.appendChild(table);
+  }
+
+  /* ---------- PAPELERA DE ASISTENCIA ---------- */
+
+  async function updateTrashBadge() {
+    var badge = qs("trashBadge");
+    var result = await supabase
+      .from("attendance_logs")
+      .select("id", { count: "exact", head: true })
+      .not("deleted_at", "is", null);
+
+    var count = result.count || 0;
+    badge.textContent = count;
+    badge.classList.toggle("hidden", count === 0);
+  }
+
+  async function openTrashModal() {
+    var root = qs("modalRoot");
+    root.innerHTML =
+      '<div class="modal-overlay"><div class="modal-card trash-modal-card">' +
+      "<h3>Papelera de asistencia</h3>" +
+      '<p>Registros eliminados por el administrador. Nada se borra de forma permanente: puedes restaurarlos aquí en cualquier momento.</p>' +
+      '<div id="trashListWrap"></div>' +
+      '<div class="modal-actions"><button class="btn btn-secondary" id="closeTrashBtn">Cerrar</button></div>' +
+      "</div></div>";
+
+    root.querySelector("#closeTrashBtn").addEventListener("click", function () {
+      root.innerHTML = "";
+    });
+    root.querySelector(".modal-overlay").addEventListener("click", function (event) {
+      if (event.target.classList.contains("modal-overlay")) root.innerHTML = "";
+    });
+
+    var listWrap = root.querySelector("#trashListWrap");
+    listWrap.innerHTML = '<p class="detail">Cargando...</p>';
+
+    var result = await supabase
+      .from("attendance_logs")
+      .select("id, type, occurred_at, source, deleted_at, employees(full_name)")
+      .not("deleted_at", "is", null)
+      .order("deleted_at", { ascending: false })
+      .limit(100);
+
+    if (result.error) {
+      listWrap.innerHTML = '<div class="empty-state">No se pudo cargar la papelera.</div>';
+      return;
+    }
+
+    var logs = result.data || [];
+    if (!logs.length) {
+      listWrap.innerHTML = '<div class="empty-state">La papelera está vacía.</div>';
+      return;
+    }
+
+    var table = document.createElement("table");
+    table.innerHTML =
+      "<thead><tr><th>Trabajador</th><th>Tipo</th><th>Fecha original</th><th>Eliminado</th><th>Acciones</th></tr></thead><tbody></tbody>";
     var tbody = table.querySelector("tbody");
 
     logs.forEach(function (log) {
@@ -767,13 +903,33 @@
         '">' +
         (log.type === "entrada" ? "Entrada" : "Salida") +
         "</span>";
-      cells[2].textContent = log.source === "geolocation" ? "GPS" : "NFC";
-      cells[3].textContent = new Date(log.occurred_at).toLocaleString("es-MX");
-      cells[4].textContent = log.notified ? "Sí" : "No";
+      cells[2].textContent = new Date(log.occurred_at).toLocaleString("es-MX");
+      cells[3].textContent = new Date(log.deleted_at).toLocaleString("es-MX");
+
+      var restoreBtn = document.createElement("button");
+      restoreBtn.className = "btn btn-primary btn-sm";
+      restoreBtn.textContent = "Restaurar";
+      restoreBtn.addEventListener("click", async function () {
+        var updateResult = await supabase
+          .from("attendance_logs")
+          .update({ deleted_at: null })
+          .eq("id", log.id);
+        if (updateResult.error) {
+          toast("No se pudo restaurar el registro", "error");
+          return;
+        }
+        toast("Registro restaurado", "success");
+        root.innerHTML = "";
+        loadAttendance(currentLoadToken);
+      });
+      cells[4].appendChild(restoreBtn);
+
       tbody.appendChild(tr);
     });
 
-    wrap.innerHTML = "";
-    wrap.appendChild(table);
+    listWrap.innerHTML = "";
+    listWrap.appendChild(table);
   }
+
+  qs("openTrashBtn").addEventListener("click", openTrashModal);
 })();
