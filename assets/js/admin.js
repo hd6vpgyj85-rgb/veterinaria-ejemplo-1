@@ -755,8 +755,22 @@
 
   /* ---------- ASISTENCIA ---------- */
 
+  async function cleanupOldAttendance() {
+    var weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    await supabase
+      .from("attendance_logs")
+      .update({ deleted_at: new Date().toISOString() })
+      .is("deleted_at", null)
+      .lt("occurred_at", weekAgo.toISOString());
+  }
+
   async function loadAttendance(token) {
     var wrap = qs("attendanceTableWrap");
+
+    await cleanupOldAttendance();
+    if (isStaleLoad(token)) return;
+
     var result = await supabase
       .from("attendance_logs")
       .select("id, type, occurred_at, notified, source, employees(full_name)")

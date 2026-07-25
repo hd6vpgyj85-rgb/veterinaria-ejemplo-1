@@ -101,7 +101,8 @@ Entra a `https://tu-sitio.netlify.app/admin.html` con el correo y contraseña cr
   por NFC o por GPS. Puedes eliminar un registro (pide confirmación), pero no se borra de verdad:
   queda guardado en la **Papelera** (ícono de bote de basura en la esquina superior derecha de esta
   pestaña), donde puedes verlo y restaurarlo cuando quieras — así ningún registro de un trabajador
-  desaparece sin dejar rastro.
+  desaparece sin dejar rastro. Los registros de más de 7 días se mueven solos a la papelera cada vez
+  que abres esta pestaña (también recuperables, nunca se borran de verdad).
 
 ## 7. Configurar la ubicación para el registro por GPS
 
