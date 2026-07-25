@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yukly Pets — Veterinaria en Ciudad Juárez</title>
 <meta name="description" content="Yukly Pets: consultas, vacunación, grooming, cirugías, guardería y tienda para mascotas en Ciudad Juárez.">
+<link rel="icon" type="image/png" href="assets/images/logo-duck.png">
 <style>
   :root {
     --blue: #2B7FD4;
@@ -169,6 +170,7 @@
   .brand-logo {
     width: 44px;
     height: 44px;
+    object-fit: contain;
     flex-shrink: 0;
   }
 
@@ -302,6 +304,15 @@
     z-index: 1;
   }
 
+  .hero-photo {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    display: block;
+  }
+
   /* FADE UP ANIMATION */
   .fade-up {
     opacity: 0;
@@ -364,6 +375,44 @@
   .service-card p {
     color: var(--gray);
     font-size: 0.95rem;
+  }
+
+  /* GALERÍA */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .gallery-card {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    aspect-ratio: 4 / 3;
+  }
+
+  .gallery-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .gallery-card:hover img {
+    transform: scale(1.05);
+  }
+
+  .gallery-card figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    background: linear-gradient(to top, rgba(29, 43, 58, 0.75), transparent);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.9rem;
   }
 
   /* CITAS */
@@ -533,6 +582,96 @@
     border: 0;
   }
 
+  /* RESEÑAS */
+  .reviews {
+    background: var(--blue-light);
+  }
+
+  .reviews-inner {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .reviews-list {
+    position: relative;
+  }
+
+  .reviews-empty {
+    color: var(--gray);
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    text-align: center;
+  }
+
+  .review-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    pointer-events: none;
+  }
+
+  .review-slide.active {
+    position: relative;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .review-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 24px 26px;
+    box-shadow: 0 6px 18px rgba(43, 127, 212, 0.08);
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .review-photo-preview {
+    width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+  }
+
+  .review-photo {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-bottom: 16px;
+  }
+
+  .review-stars {
+    color: var(--yellow-dark);
+    font-size: 1rem;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .review-comment {
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .review-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--blue-dark);
+  }
+
+  #reviewFormCard h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+
   /* FOOTER */
   footer {
     background: var(--blue-dark);
@@ -633,12 +772,14 @@
       margin: 0 auto;
     }
 
-    .services-grid {
+    .services-grid,
+    .gallery-grid {
       grid-template-columns: repeat(2, 1fr);
     }
 
     .appointment-inner,
-    .location-inner {
+    .location-inner,
+    .reviews-inner {
       grid-template-columns: 1fr;
     }
 
@@ -657,13 +798,15 @@
       top: 74px;
       left: 20px;
       right: 20px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
       background: var(--white);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow);
       flex-direction: column;
       align-items: stretch;
-      padding: 16px;
-      gap: 4px;
+      padding: 14px;
+      gap: 10px;
       transform: translateY(-20px);
       opacity: 0;
       pointer-events: none;
@@ -677,19 +820,23 @@
     }
 
     .nav-links a {
+      display: block;
       text-align: center;
+      padding: 15px 16px;
+      font-size: 1.02rem;
     }
 
     .nav-cta {
       margin-left: 0;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .hamburger {
       display: flex;
     }
 
-    .services-grid {
+    .services-grid,
+    .gallery-grid {
       grid-template-columns: 1fr;
     }
 
@@ -717,20 +864,14 @@
 <nav class="navbar">
   <div class="nav-inner">
     <a href="#top" class="brand">
-      <!-- reemplazar con logo real -->
-      <svg class="brand-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Yukly Pets">
-        <circle cx="32" cy="32" r="32" fill="#FFD166"/>
-        <path d="M46 30c0 4-2 6-2 6s3 1 3 4c0 2-2 3-4 3-3 0-4-2-6-2-1 0-2 1-4 1-9 0-16-6-16-14 0-9 8-15 17-15 8 0 14 5 12 17z" fill="#2B7FD4"/>
-        <circle cx="38" cy="24" r="2.2" fill="#fff"/>
-        <path d="M18 30c-3 0-6-2-6-5s2-4 4-3c1 3 2 5 2 8z" fill="#2B7FD4"/>
-        <path d="M40 40c1 3 0 6-3 6s-4-3-3-6" stroke="#F2B705" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <img class="brand-logo" src="assets/images/logo-duck.png" alt="Logo Yukly Pets">
       <span class="brand-name">Yukly Pets</span>
     </a>
     <ul class="nav-links" id="navLinks">
       <li><a href="#servicios">Servicios</a></li>
       <li><a href="#citas">Citas</a></li>
       <li><a href="#ubicacion">Ubicación</a></li>
+      <li><a href="#resenas">Reseñas</a></li>
       <li><a href="#contacto">Contacto</a></li>
       <li><a href="#citas" class="nav-cta">Agendar cita</a></li>
     </ul>
@@ -756,35 +897,7 @@
     </div>
     <div class="hero-art fade-up">
       <div class="hero-blob"></div>
-      <!-- REEMPLAZAR: imagen hero -->
-      <svg viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="210" cy="340" rx="160" ry="20" fill="#2B7FD4" opacity="0.08"/>
-        <g transform="translate(30,60)">
-          <ellipse cx="90" cy="220" rx="80" ry="55" fill="#FFD166"/>
-          <circle cx="90" cy="140" r="62" fill="#FFD166"/>
-          <ellipse cx="42" cy="95" rx="20" ry="30" fill="#FFD166" transform="rotate(-25 42 95)"/>
-          <ellipse cx="138" cy="95" rx="20" ry="30" fill="#FFD166" transform="rotate(25 138 95)"/>
-          <ellipse cx="42" cy="100" rx="10" ry="16" fill="#F7C15A" transform="rotate(-25 42 100)"/>
-          <ellipse cx="138" cy="100" rx="10" ry="16" fill="#F7C15A" transform="rotate(25 138 100)"/>
-          <circle cx="68" cy="135" r="7" fill="#1D2B3A"/>
-          <circle cx="112" cy="135" r="7" fill="#1D2B3A"/>
-          <ellipse cx="90" cy="158" rx="12" ry="8" fill="#1D2B3A"/>
-          <path d="M78 168 Q90 178 102 168" stroke="#1D2B3A" stroke-width="3" fill="none" stroke-linecap="round"/>
-        </g>
-        <g transform="translate(220,140)">
-          <ellipse cx="80" cy="150" rx="75" ry="48" fill="#2B7FD4"/>
-          <circle cx="80" cy="80" r="55" fill="#2B7FD4"/>
-          <path d="M35 45 L20 5 L60 35 Z" fill="#2B7FD4"/>
-          <path d="M125 45 L140 5 L100 35 Z" fill="#2B7FD4"/>
-          <ellipse cx="55" cy="90" rx="18" ry="22" fill="#fff"/>
-          <ellipse cx="105" cy="90" rx="18" ry="22" fill="#fff"/>
-          <circle cx="58" cy="90" r="6" fill="#1D2B3A"/>
-          <circle cx="102" cy="90" r="6" fill="#1D2B3A"/>
-          <ellipse cx="80" cy="105" rx="10" ry="7" fill="#F2B705"/>
-          <path d="M65 115 Q80 128 95 115" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M20 130 Q0 110 10 90" stroke="#2B7FD4" stroke-width="10" fill="none" stroke-linecap="round"/>
-        </g>
-      </svg>
+      <img class="hero-photo" src="assets/images/hero-dog-cat.jpg" alt="Perro y gato en la clínica Yukly Pets">
     </div>
   </div>
 </header>
@@ -796,7 +909,7 @@
       <h2 class="section-title">Todo lo que tu mascota necesita</h2>
       <p class="section-sub">Cuidado integral con calidez humana, en un solo lugar.</p>
     </div>
-    <div class="services-grid">
+    <div class="services-grid" id="servicesGrid">
       <div class="service-card fade-up">
         <div class="service-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#2B7FD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -860,6 +973,30 @@
   </div>
 </section>
 
+<section class="gallery" id="instalaciones">
+  <div class="container">
+    <div class="fade-up">
+      <span class="eyebrow">Conócenos</span>
+      <h2 class="section-title">Así cuidamos a tu mascota</h2>
+      <p class="section-sub">Instalaciones cómodas y un equipo que trata a cada paciente como de la familia.</p>
+    </div>
+    <div class="gallery-grid">
+      <figure class="gallery-card fade-up">
+        <img src="assets/images/vet-exam.jpg" alt="Veterinaria revisando a un perro en consulta">
+        <figcaption>Consultas con calma y calidez</figcaption>
+      </figure>
+      <figure class="gallery-card fade-up">
+        <img src="assets/images/grooming.jpg" alt="Perro feliz después de su sesión de grooming">
+        <figcaption>Grooming que deja a tu mascota feliz</figcaption>
+      </figure>
+      <figure class="gallery-card fade-up">
+        <img src="assets/images/clinic-interior.jpg" alt="Sala de espera de la clínica Yukly Pets">
+        <figcaption>Un espacio cómodo para esperar</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
 <section class="appointment" id="citas">
   <div class="container appointment-inner">
     <div class="appointment-info fade-up">
@@ -909,9 +1046,15 @@
             <option value="Tienda de productos">Tienda de productos</option>
           </select>
         </div>
-        <div class="form-row">
-          <label for="date">Fecha preferida</label>
-          <input type="date" id="date" name="date" required>
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="date">Fecha preferida</label>
+            <input type="date" id="date" name="date" required>
+          </div>
+          <div class="form-row">
+            <label for="time">Hora preferida</label>
+            <input type="time" id="time" name="time" required>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary btn-block">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5C8.3 21.5 10.1 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.2-.4-4.5-1.3l-.3-.2-3 .9.9-2.9-.2-.3C4 15 3.5 13.5 3.5 12c0-4.7 3.8-8.5 8.5-8.5s8.5 3.8 8.5 8.5-3.8 8.5-8.5 8.5zm4.6-6.4c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.6.8-.8 1-.1.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.4 0-.5C10 8.5 9.5 7.3 9.3 6.8c-.2-.4-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-1 1-1 2.3s1 2.7 1.1 2.9c.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.6-.3z"/></svg>
@@ -969,16 +1112,56 @@
   </div>
 </section>
 
+<section class="reviews" id="resenas">
+  <div class="container">
+    <div class="fade-up">
+      <span class="eyebrow">Lo que dicen de nosotros</span>
+      <h2 class="section-title">Reseñas de nuestros clientes</h2>
+      <p class="section-sub">Comparte tu experiencia. Cada reseña es revisada antes de publicarse.</p>
+    </div>
+    <div class="reviews-inner">
+      <div class="reviews-list fade-up" id="reviewsList">
+        <p class="reviews-empty">Aún no hay reseñas publicadas. ¡Sé el primero en dejar la tuya!</p>
+      </div>
+      <div class="form-card fade-up" id="reviewFormCard">
+        <h3>Deja tu reseña</h3>
+        <form id="reviewForm">
+          <div class="form-row">
+            <label for="reviewName">Nombre</label>
+            <input type="text" id="reviewName" name="reviewName" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-row">
+            <label for="reviewRating">Calificación</label>
+            <select id="reviewRating" name="reviewRating" required>
+              <option value="5">5 - Excelente</option>
+              <option value="4">4 - Muy bueno</option>
+              <option value="3">3 - Bueno</option>
+              <option value="2">2 - Regular</option>
+              <option value="1">1 - Malo</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="reviewComment">Comentario</label>
+            <input type="text" id="reviewComment" name="reviewComment" placeholder="Cuéntanos tu experiencia" required>
+          </div>
+          <div class="form-row">
+            <label for="reviewPhoto">Foto (opcional)</label>
+            <input type="file" id="reviewPhoto" name="reviewPhoto" accept="image/*">
+            <img class="review-photo-preview hidden" id="reviewPhotoPreview" alt="Vista previa de la foto">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Enviar reseña</button>
+          <p class="form-note" id="reviewNote">Tu reseña se publicará después de ser revisada por el equipo.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer id="contacto">
   <div class="footer-inner">
     <div class="footer-col">
       <div class="footer-brand">
-        <svg class="brand-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Yukly Pets">
-          <circle cx="32" cy="32" r="32" fill="#FFD166"/>
-          <path d="M46 30c0 4-2 6-2 6s3 1 3 4c0 2-2 3-4 3-3 0-4-2-6-2-1 0-2 1-4 1-9 0-16-6-16-14 0-9 8-15 17-15 8 0 14 5 12 17z" fill="#2B7FD4"/>
-          <circle cx="38" cy="24" r="2.2" fill="#fff"/>
-          <path d="M18 30c-3 0-6-2-6-5s2-4 4-3c1 3 2 5 2 8z" fill="#2B7FD4"/>
-        </svg>
+        <img class="brand-logo" src="assets/images/logo-duck.png" alt="Logo Yukly Pets">
         <span class="brand-name">Yukly Pets</span>
       </div>
       <p>Cuidado veterinario cercano, moderno y con mucho cariño para tu mascota en Ciudad Juárez.</p>
@@ -1002,7 +1185,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    © 2025 Yukly Pets. Todos los derechos reservados.
+    © 2025 Yukly Pets. Todos los derechos reservados. · <a href="admin.html">Acceso personal</a>
   </div>
 </footer>
 
@@ -1010,6 +1193,9 @@
   <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5C8.3 21.5 10.1 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.2-.4-4.5-1.3l-.3-.2-3 .9.9-2.9-.2-.3C4 15 3.5 13.5 3.5 12c0-4.7 3.8-8.5 8.5-8.5s8.5 3.8 8.5 8.5-3.8 8.5-8.5 8.5zm4.6-6.4c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.6.8-.8 1-.1.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.4 0-.5C10 8.5 9.5 7.3 9.3 6.8c-.2-.4-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-1 1-1 2.3s1 2.7 1.1 2.9c.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.6-.3z"/></svg>
 </a>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase-client.js"></script>
 <script>
   (function () {
     var hamburger = document.getElementById('hamburger');
@@ -1049,6 +1235,7 @@
       var petName = document.getElementById('petName').value.trim();
       var service = document.getElementById('service').value;
       var date = document.getElementById('date').value;
+      var time = document.getElementById('time').value;
 
       var formattedDate = date;
       if (date) {
@@ -1061,10 +1248,170 @@
         'Teléfono: ' + ownerPhone + '%0A' +
         'Mascota: ' + petName + '%0A' +
         'Servicio: ' + service + '%0A' +
-        'Fecha preferida: ' + formattedDate;
+        'Fecha preferida: ' + formattedDate + '%0A' +
+        'Hora preferida: ' + time;
 
       var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + message;
       window.open(url, '_blank', 'noopener');
+
+      if (window.YuklyData && window.YuklyData.isConfigured) {
+        window.YuklyData.submitAppointment({
+          ownerName: ownerName,
+          phone: ownerPhone,
+          petName: petName,
+          service: service,
+          date: date,
+          time: time,
+        }).catch(function (error) {
+          console.error('No se pudo guardar la cita en Supabase:', error);
+        });
+      }
+    });
+
+    var SERVICE_ICONS = {
+      stethoscope: '<path d="M12 21c-4-3-8-6-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5-4 8-8 11-.7.5-1.3.5-2 0z"/>',
+      syringe: '<path d="M19 6 L15 10 M9 14l-4 4 M8 12l4 4 8-8-4-4z"/><circle cx="6" cy="18" r="2"/>',
+      scissors: '<path d="M6 3v3M10 3v3M14 3v3M6 8a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3M9 11v6a3 3 0 0 0 6 0v-6"/>',
+      surgery: '<path d="M12 2v6M9 5h6M5 10h14l-1.5 10a2 2 0 0 1-2 1.7H8.5a2 2 0 0 1-2-1.7L5 10z"/>',
+      house: '<path d="M3 10 12 3l9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 21v-6h6v6"/>',
+      cart: '<path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M6 6 4 3H2"/>',
+    };
+
+    function renderServices(services) {
+      var grid = document.getElementById('servicesGrid');
+      if (!services || !services.length) return;
+
+      grid.innerHTML = '';
+      services.forEach(function (service) {
+        var iconPath = SERVICE_ICONS[service.icon] || SERVICE_ICONS.stethoscope;
+        var card = document.createElement('div');
+        card.className = 'service-card fade-up visible';
+        card.innerHTML =
+          '<div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2B7FD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          iconPath +
+          '</svg></div><h3></h3><p></p>';
+        card.querySelector('h3').textContent = service.name;
+        card.querySelector('p').textContent = service.description;
+        grid.appendChild(card);
+      });
+    }
+
+    function starString(rating) {
+      var stars = '';
+      for (var i = 0; i < 5; i++) {
+        stars += i < rating ? '★' : '☆';
+      }
+      return stars;
+    }
+
+    var reviewsCarouselTimer = null;
+
+    function renderReviews(reviews) {
+      var list = document.getElementById('reviewsList');
+      if (!reviews || !reviews.length) return;
+
+      if (reviewsCarouselTimer) {
+        clearInterval(reviewsCarouselTimer);
+        reviewsCarouselTimer = null;
+      }
+
+      list.innerHTML = '';
+      var slides = reviews.map(function (review, index) {
+        var slide = document.createElement('div');
+        slide.className = 'review-slide' + (index === 0 ? ' active' : '');
+
+        var card = document.createElement('div');
+        card.className = 'review-card';
+        var photoHtml = review.photo_url
+          ? '<img class="review-photo" src="' + review.photo_url + '" alt="Foto compartida por ' + review.name + '">'
+          : '';
+        card.innerHTML =
+          photoHtml +
+          '<div class="review-stars"></div><p class="review-comment"></p><div class="review-name"></div>';
+        card.querySelector('.review-stars').textContent = starString(review.rating);
+        card.querySelector('.review-comment').textContent = review.comment;
+        card.querySelector('.review-name').textContent = review.name;
+
+        slide.appendChild(card);
+        list.appendChild(slide);
+        return slide;
+      });
+
+      if (slides.length > 1) {
+        var current = 0;
+        reviewsCarouselTimer = setInterval(function () {
+          slides[current].classList.remove('active');
+          current = (current + 1) % slides.length;
+          slides[current].classList.add('active');
+        }, 8000);
+      }
+    }
+
+    if (window.YuklyData && window.YuklyData.isConfigured) {
+      window.YuklyData.getActiveServices()
+        .then(renderServices)
+        .catch(function (error) {
+          console.error('No se pudieron cargar los servicios:', error);
+        });
+
+      window.YuklyData.getApprovedReviews()
+        .then(renderReviews)
+        .catch(function (error) {
+          console.error('No se pudieron cargar las reseñas:', error);
+        });
+    }
+
+    var reviewPhotoInput = document.getElementById('reviewPhoto');
+    var reviewPhotoPreview = document.getElementById('reviewPhotoPreview');
+    reviewPhotoInput.addEventListener('change', function () {
+      var file = reviewPhotoInput.files[0];
+      if (!file) {
+        reviewPhotoPreview.classList.add('hidden');
+        reviewPhotoPreview.src = '';
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        reviewPhotoPreview.src = event.target.result;
+        reviewPhotoPreview.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    var reviewForm = document.getElementById('reviewForm');
+    reviewForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var reviewNote = document.getElementById('reviewNote');
+
+      if (!window.YuklyData || !window.YuklyData.isConfigured) {
+        reviewNote.textContent = 'Las reseñas estarán disponibles en cuanto activemos esta sección.';
+        return;
+      }
+
+      var name = document.getElementById('reviewName').value.trim();
+      var rating = parseInt(document.getElementById('reviewRating').value, 10);
+      var comment = document.getElementById('reviewComment').value.trim();
+      var photoInput = document.getElementById('reviewPhoto');
+      var photoFile = photoInput.files[0] || null;
+      var submitBtn = reviewForm.querySelector('button[type="submit"]');
+
+      submitBtn.disabled = true;
+      reviewNote.textContent = photoFile ? 'Enviando tu reseña y foto...' : 'Enviando tu reseña...';
+
+      window.YuklyData.submitReview({ name: name, rating: rating, comment: comment }, photoFile)
+        .then(function () {
+          reviewForm.reset();
+          reviewPhotoPreview.classList.add('hidden');
+          reviewPhotoPreview.src = '';
+          reviewNote.textContent = '¡Gracias por tu reseña! Se publicará en cuanto sea revisada.';
+        })
+        .catch(function (error) {
+          console.error('No se pudo enviar la reseña:', error);
+          reviewNote.textContent = 'No se pudo enviar tu reseña, intenta de nuevo más tarde.';
+        })
+        .finally(function () {
+          submitBtn.disabled = false;
+        });
     });
 
     var dateInput = document.getElementById('date');

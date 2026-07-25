@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de administración — Yukly Pets</title>
+<link rel="icon" type="image/png" href="assets/images/logo-duck.png">
+<style>
+  :root {
+    --blue: #2B7FD4;
+    --blue-dark: #1F63A8;
+    --blue-light: #EAF3FC;
+    --yellow: #FFD166;
+    --yellow-dark: #F2B705;
+    --white: #FFFFFF;
+    --ink: #1D2B3A;
+    --gray: #5A6B7B;
+    --red: #E4572E;
+    --green: #2E9E5B;
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--blue-light);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+  }
+
+  input, select, textarea {
+    font-family: inherit;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* LOGIN */
+  .login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(circle at 15% 10%, var(--blue-light), #fff 60%);
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 40px 32px;
+    box-shadow: 0 20px 50px rgba(43, 127, 212, 0.18);
+  }
+
+  .login-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .login-brand img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+  .login-brand span {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--blue-dark);
+  }
+
+  .login-card h1 {
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+  }
+
+  .login-card p.sub {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #E2E9F0;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .checkbox-field input {
+    width: 18px;
+    height: 18px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-primary {
+    background: var(--yellow);
+    color: var(--ink);
+  }
+
+  .btn-secondary {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+  }
+
+  .btn-danger {
+    background: #FDE7E1;
+    color: var(--red);
+  }
+
+  .btn-block {
+    width: 100%;
+  }
+
+  .btn-sm {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+
+  .form-error {
+    background: #FDE7E1;
+    color: var(--red);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  .form-success {
+    background: #E4F6EB;
+    color: var(--green);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  /* APP SHELL */
+  .app-shell {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    background: var(--blue-dark);
+    color: var(--white);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 36px;
+    padding: 0 6px;
+  }
+
+  .sidebar-brand img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  .sidebar-brand span {
+    font-weight: 800;
+    font-size: 1.1rem;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .sidebar-nav button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    color: #C7DCF2;
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.92rem;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .sidebar-nav button svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-nav button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+  }
+
+  .sidebar-nav button.active {
+    background: var(--yellow);
+    color: var(--ink);
+  }
+
+  .sidebar-footer button {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  .main {
+    padding: 32px 40px;
+    max-width: 1100px;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .main-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .main-header p {
+    color: var(--gray);
+    font-size: 0.92rem;
+    margin-top: 4px;
+  }
+
+  .panel {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: 0 6px 20px rgba(43, 127, 212, 0.08);
+    margin-bottom: 24px;
+  }
+
+  .panel h2 {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  th {
+    text-align: left;
+    color: var(--gray);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--blue-light);
+  }
+
+  td {
+    padding: 12px;
+    border-bottom: 1px solid #F0F4F9;
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .badge-green {
+    background: #E4F6EB;
+    color: var(--green);
+  }
+
+  .badge-gray {
+    background: #EEF1F5;
+    color: var(--gray);
+  }
+
+  .badge-yellow {
+    background: #FFF4DC;
+    color: var(--yellow-dark);
+  }
+
+  .row-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--gray);
+    padding: 40px 20px;
+    font-size: 0.9rem;
+  }
+
+  .inline-form {
+    background: var(--blue-light);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .inline-form .field-row-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stars-static {
+    color: var(--yellow-dark);
+    letter-spacing: 2px;
+  }
+
+  .review-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    display: block;
+  }
+
+  .trash-btn {
+    position: relative;
+    background: var(--white);
+    color: var(--blue-dark);
+    box-shadow: 0 4px 12px rgba(43, 127, 212, 0.12);
+  }
+
+  .trash-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .trash-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--red);
+    color: var(--white);
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+  }
+
+  .trash-modal-card {
+    max-width: 640px;
+  }
+
+  .nfc-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--gray);
+    margin-bottom: 4px;
+  }
+
+  .nfc-link code {
+    background: var(--blue-light);
+    padding: 2px 6px;
+    border-radius: 6px;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(43, 127, 212, 0.08);
+  }
+
+  .stat-card .value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--blue-dark);
+  }
+
+  .stat-card .label {
+    color: var(--gray);
+    font-size: 0.85rem;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(29, 43, 58, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+  }
+
+  .modal-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    max-width: 380px;
+    width: 100%;
+  }
+
+  .modal-card h3 {
+    margin-bottom: 10px;
+  }
+
+  .modal-card p {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: var(--white);
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    z-index: 3000;
+    max-width: 320px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .toast.toast-error {
+    background: var(--red);
+  }
+
+  .toast.toast-success {
+    background: var(--green);
+  }
+
+  .config-warning {
+    background: #FFF4DC;
+    color: #8A5A00;
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    font-size: 0.88rem;
+    margin-bottom: 20px;
+  }
+
+  .hamburger-mobile {
+    display: none;
+    background: var(--blue-dark);
+    color: var(--white);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+  }
+
+  @media (max-width: 900px) {
+    .app-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      z-index: 1500;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .hamburger-mobile {
+      display: inline-flex;
+    }
+
+    .main {
+      padding: 20px;
+    }
+
+    .field-row,
+    .inline-form .field-row-3 {
+      grid-template-columns: 1fr;
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="configWarning" class="config-warning hidden" style="margin:20px;">
+  Supabase no está configurado todavía. Edita <code>assets/js/config.js</code> con la URL y la clave anónima de tu
+  proyecto para activar el panel de administración.
+</div>
+
+<section class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <img src="assets/images/logo-duck.png" alt="Logo Yukly Pets">
+      <span>Yukly Pets</span>
+    </div>
+    <h1>Panel de administración</h1>
+    <p class="sub">Acceso exclusivo para el equipo de la clínica.</p>
+    <div id="loginError"></div>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Correo</label>
+        <input type="email" id="loginEmail" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="loginPassword">Contraseña</label>
+        <input type="password" id="loginPassword" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginSubmit">Iniciar sesión</button>
+    </form>
+  </div>
+</section>
+
+<div class="app-shell hidden" id="appShell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/images/logo-duck.png" alt="Logo Yukly Pets">
+      <span>Yukly Pets</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button data-tab="resumen" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Resumen
+      </button>
+      <button data-tab="dueno">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        Dueño
+      </button>
+      <button data-tab="servicios">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4-3-8-6-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5-4 8-8 11-.7.5-1.3.5-2 0z"/></svg>
+        Servicios
+      </button>
+      <button data-tab="resenas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></svg>
+        Reseñas
+      </button>
+      <button data-tab="trabajadores">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Trabajadores
+      </button>
+      <button data-tab="asistencia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Asistencia
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="logoutBtn">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <button class="hamburger-mobile" id="mobileMenuBtn">☰ Menú</button>
+
+    <section class="tab-section" id="tab-resumen">
+      <div class="main-header">
+        <div>
+          <h1>Resumen</h1>
+          <p>Vista general de la actividad de Yukly Pets.</p>
+        </div>
+      </div>
+      <div class="stat-grid" id="statGrid"></div>
+      <div class="panel">
+        <h2>Últimas citas solicitadas</h2>
+        <div id="recentAppointments"></div>
+      </div>
+    </section>
+
+    <section class="tab-section hidden" id="tab-dueno">
+      <div class="main-header">
+        <div>
+          <h1>Sección del dueño</h1>
+          <p>Datos del negocio que se muestran en el sitio público y notificaciones.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Información del negocio</h2>
+        <div id="businessFormMsg"></div>
+        <form id="businessForm">
+          <div class="field-row">
+            <div class="field">
+              <label for="bName">Nombre del negocio</label>
+              <input type="text" id="bName" required>
+            </div>
+            <div class="field">
+              <label for="bEmail">Correo del dueño (recibe notificaciones)</label>
+              <input type="email" id="bEmail" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="bWhatsapp">WhatsApp (solo números, con código de país)</label>
+              <input type="text" id="bWhatsapp" required>
+            </div>
+            <div class="field">
+              <label for="bAddress">Dirección</label>
+              <input type="text" id="bAddress" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="bHoursWeekday">Horario Lun-Vie</label>
+              <input type="text" id="bHoursWeekday" required>
+            </div>
+            <div class="field">
+              <label for="bHoursSaturday">Horario Sábado</label>
+              <input type="text" id="bHoursSaturday" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="bHoursSunday">Horario Domingo</label>
+            <input type="text" id="bHoursSunday" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Ubicación para registro de asistencia</h2>
+        <p style="color:var(--gray); font-size:0.9rem; margin-bottom:20px;">
+          Los trabajadores solo podrán marcar su entrada/salida desde su "enlace de registro personal"
+          cuando su celular esté dentro de este radio. Para configurarla, párate físicamente en la
+          clínica y presiona el botón de abajo.
+        </p>
+        <div id="locationFormMsg"></div>
+        <form id="locationForm">
+          <button type="button" class="btn btn-secondary" id="useCurrentLocationBtn" style="margin-bottom:16px;">
+            Usar mi ubicación actual
+          </button>
+          <div class="field-row">
+            <div class="field">
+              <label for="bLatitude">Latitud</label>
+              <input type="number" id="bLatitude" step="any" placeholder="Ej. 31.6904">
+            </div>
+            <div class="field">
+              <label for="bLongitude">Longitud</label>
+              <input type="number" id="bLongitude" step="any" placeholder="Ej. -106.4245">
+            </div>
+          </div>
+          <div class="field">
+            <label for="bRadius">Radio permitido (metros)</label>
+            <input type="number" id="bRadius" min="20" step="10" value="150">
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar ubicación</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Cambiar contraseña de acceso</h2>
+        <div id="passwordFormMsg"></div>
+        <form id="passwordForm">
+          <div class="field-row">
+            <div class="field">
+              <label for="newPassword">Nueva contraseña</label>
+              <input type="password" id="newPassword" minlength="6" required>
+            </div>
+            <div class="field">
+              <label for="confirmPassword">Confirmar contraseña</label>
+              <input type="password" id="confirmPassword" minlength="6" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-secondary">Actualizar contraseña</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="tab-section hidden" id="tab-servicios">
+      <div class="main-header">
+        <div>
+          <h1>Servicios</h1>
+          <p>Administra los servicios que se muestran en el sitio.</p>
+        </div>
+        <button class="btn btn-primary" id="newServiceBtn">+ Nuevo servicio</button>
+      </div>
+      <div class="panel">
+        <div class="inline-form hidden" id="serviceFormWrap">
+          <div id="serviceFormMsg"></div>
+          <form id="serviceForm">
+            <input type="hidden" id="serviceId">
+            <div class="field">
+              <label for="serviceName">Nombre</label>
+              <input type="text" id="serviceName" required>
+            </div>
+            <div class="field">
+              <label for="serviceDescription">Descripción</label>
+              <input type="text" id="serviceDescription" required>
+            </div>
+            <div class="field-row-3">
+              <div class="field">
+                <label for="serviceIcon">Ícono</label>
+                <select id="serviceIcon">
+                  <option value="stethoscope">Estetoscopio</option>
+                  <option value="syringe">Jeringa</option>
+                  <option value="scissors">Tijeras</option>
+                  <option value="surgery">Cirugía</option>
+                  <option value="house">Casa</option>
+                  <option value="cart">Carrito</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="serviceOrder">Orden</label>
+                <input type="number" id="serviceOrder" value="1" min="1">
+              </div>
+              <div class="field">
+                <label for="serviceActive">Estado</label>
+                <select id="serviceActive">
+                  <option value="true">Activo</option>
+                  <option value="false">Oculto</option>
+                </select>
+              </div>
+            </div>
+            <div class="row-actions">
+              <button type="submit" class="btn btn-primary">Guardar</button>
+              <button type="button" class="btn btn-secondary" id="cancelServiceBtn">Cancelar</button>
+            </div>
+          </form>
+        </div>
+        <div id="servicesTableWrap"></div>
+      </div>
+    </section>
+
+    <section class="tab-section hidden" id="tab-resenas">
+      <div class="main-header">
+        <div>
+          <h1>Reseñas</h1>
+          <p>Aprueba las reseñas que quieres mostrar en el sitio público.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div id="reviewsTableWrap"></div>
+      </div>
+    </section>
+
+    <section class="tab-section hidden" id="tab-trabajadores">
+      <div class="main-header">
+        <div>
+          <h1>Trabajadores</h1>
+          <p>Agrega o edita empleados y obtén sus enlaces NFC de entrada/salida.</p>
+        </div>
+        <button class="btn btn-primary" id="newEmployeeBtn">+ Nuevo trabajador</button>
+      </div>
+      <div class="panel">
+        <div class="inline-form hidden" id="employeeFormWrap">
+          <div id="employeeFormMsg"></div>
+          <form id="employeeForm">
+            <input type="hidden" id="employeeId">
+            <div class="field-row">
+              <div class="field">
+                <label for="employeeName">Nombre completo</label>
+                <input type="text" id="employeeName" required>
+              </div>
+              <div class="field">
+                <label for="employeeEmail">Correo (opcional)</label>
+                <input type="email" id="employeeEmail">
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="employeeRole">Puesto</label>
+                <input type="text" id="employeeRole" placeholder="Ej. Veterinario, Recepción, Groomer" required>
+              </div>
+              <div class="field">
+                <label for="employeeActive">Estado</label>
+                <select id="employeeActive">
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </div>
+            </div>
+            <div class="row-actions">
+              <button type="submit" class="btn btn-primary">Guardar</button>
+              <button type="button" class="btn btn-secondary" id="cancelEmployeeBtn">Cancelar</button>
+            </div>
+          </form>
+        </div>
+        <div id="employeesTableWrap"></div>
+      </div>
+    </section>
+
+    <section class="tab-section hidden" id="tab-asistencia">
+      <div class="main-header">
+        <div>
+          <h1>Asistencia</h1>
+          <p>Registro de entradas y salidas capturado por los NFC y GPS de cada trabajador.</p>
+        </div>
+        <button class="btn btn-secondary trash-btn" id="openTrashBtn" title="Ver asistencias eliminadas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg>
+          Papelera
+          <span class="trash-badge hidden" id="trashBadge">0</span>
+        </button>
+      </div>
+      <div class="panel">
+        <div id="attendanceTableWrap"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>
